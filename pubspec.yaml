@@ -4,14 +4,14 @@ version: 0.0.1
 homepage:
 
 environment:
-  sdk: '>=3.4.3 <4.0.0'
-  flutter: '>=3.3.0'
+  sdk: '>=3.1.5 <4.0.0'
+  flutter: '>=3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
-  camera: ^0.10.0+4
+  camera: ^0.10.0
   image: ^3.2.0
   tflite_flutter: ^0.10.4
 
