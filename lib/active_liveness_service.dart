@@ -32,7 +32,7 @@ class ActiveLivenessService {
 
   Future<Interpreter?> _getInterpreter() async {
     try {
-      Interpreter interpreter = await Interpreter.fromAsset('active_liveness_flutter_plugin/assets/tflite_active_liveness_no_lstm_v3.tflite');
+      Interpreter interpreter = await Interpreter.fromAsset('packages/active_liveness_flutter_plugin/assets/tflite_active_liveness_no_lstm_v3.tflite');
       return interpreter;
     } catch (e) {
       return null;
