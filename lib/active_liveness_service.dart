@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:math';
+// import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:camera/camera.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
+import 'dart:ui' as ui;
 
 typedef InputType = List<List<List<List<List<double>>>>>;
 
@@ -54,10 +56,16 @@ class ActiveLivenessService {
       img.Image? manipulateBitmap = await _convertToImage(frames[i]);
       for (int y = 0; y < 112; ++y) {
         for (int x = 0; x < 112; ++x) {
-          int pixel = manipulateBitmap!.getPixel(x, y);
-          input[0][i][y][x][0] = img.getRed(pixel) / 255.0;
-          input[0][i][y][x][1] = img.getGreen(pixel) / 255.0;
-          input[0][i][y][x][2] = img.getBlue(pixel) / 255.0;
+          // TODO
+          // int pixel = manipulateBitmap!.getPixel(x, y);
+          // input[0][i][y][x][0] = img.uint32ToRed(pixel) / 255.0;
+          // input[0][i][y][x][1] = img.uint32ToGreen(pixel) / 255.0;
+          // input[0][i][y][x][2] = img.uint32ToBlue(pixel) / 255.0;
+          img.Pixel getPixelData = manipulateBitmap!.getPixel(x, y);
+          int pixel = ui.Color.fromRGBO(getPixelData.r.toInt(), getPixelData.g.toInt(), getPixelData.b.toInt(), getPixelData.a.toDouble()).value;
+          input[0][i][y][x][0] = img.uint32ToRed(pixel) / 255.0;
+          input[0][i][y][x][1] = img.uint32ToGreen(pixel) / 255.0;
+          input[0][i][y][x][2] = img.uint32ToBlue(pixel) / 255.0;
         }
       }
     }
@@ -114,8 +122,11 @@ class ActiveLivenessService {
     switch(item.format.group) {
       case ImageFormatGroup.yuv420:
         img.Image image = await compute(_convertYUV420ToImage, item);
-        img.Image rotatedImage = img.copyRotate(image, -90);
-        img.Image flippedImage = img.flip(rotatedImage, img.Flip.horizontal);
+        // TODO
+        // img.Image rotatedImage = img.copyRotate(image, -90);
+        // img.Image flippedImage = img.flip(rotatedImage, img.Flip.horizontal);
+        img.Image rotatedImage = img.copyRotate(image, angle: -90);
+        img.Image flippedImage = img.flip(rotatedImage, direction: img.FlipDirection.horizontal);
         img.Image croppedCenterImage = _cropSquareCenter(flippedImage);
         img.Image resizedImage = img.copyResize(croppedCenterImage, width: 112, height: 112);
         return resizedImage;
@@ -139,7 +150,9 @@ class ActiveLivenessService {
     final int height = cameraImage.height;
     final int uvRowStride = cameraImage.planes[1].bytesPerRow;
     final int? uvPixelStride = cameraImage.planes[1].bytesPerPixel;
-    var image = img.Image(width, height);
+    // TODO
+    // var image = img.Image(width, height);
+    var image = img.Image(width: width, height: height);
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
         final int uvIndex = uvPixelStride! * (x / 2).floor() + uvRowStride * (y / 2).floor();
@@ -162,7 +175,9 @@ class ActiveLivenessService {
     final height = cameraImage.height.toInt();
     Uint8List yuv420sp = cameraImage.planes[0].bytes;
 
-    final outImg = img.Image(height, width);
+    // TODO
+    // final outImg = img.Image(height, width);
+    final outImg = img.Image(width: height, height: width);
     final int frameSize = width * height;
 
     for (int j = 0, yp = 0; j < height; j++) {
@@ -197,7 +212,9 @@ class ActiveLivenessService {
         else if (b > 262143) {
           b = 262143;
         }
-        outImg.setPixelRgba(j, width - i - 1, ((r << 6) & 0xff0000) >> 16,((g >> 2) & 0xff00) >> 8, (b >> 10) & 0xff);
+        // TODO
+        // outImg.setPixelRgba(j, width - i - 1, ((r << 6) & 0xff0000) >> 16,((g >> 2) & 0xff00) >> 8, (b >> 10) & 0xff);
+        outImg.setPixelRgba(j, width - i - 1, ((r << 6) & 0xff0000) >> 16,((g >> 2) & 0xff00) >> 8, (b >> 10) & 0xff, 0xff);
       }
     }
     return outImg;
@@ -207,7 +224,9 @@ class ActiveLivenessService {
     final int width = cameraImage.width;
     final int height = cameraImage.height;
 
-    final img.Image image = img.Image(width, height);
+    // TODO
+    // final img.Image image = img.Image(width, height);
+    final img.Image image = img.Image(width: width, height: height);
 
     final Uint8List bytes = cameraImage.planes[0].bytes;
 
@@ -218,7 +237,9 @@ class ActiveLivenessService {
         final int g = bytes[index++] & 0xFF;
         final int r = bytes[index++] & 0xFF;
         final int a = bytes[index++] & 0xFF;
-        image.setPixel(x, y, img.getColor(r, g, b, a));
+        // TODO
+        // image.setPixel(x, y, img.getColor(r, g, b, a));
+        image.setPixel(x, y, image.getColor(r, g, b, a));
       }
     }
 
@@ -229,7 +250,9 @@ class ActiveLivenessService {
     int size = image.width < image.height ? image.width : image.height;
     int xOffset = (image.width - size) ~/ 2;
     int yOffset = (image.height - size) ~/ 2;
-    return img.copyCrop(image, xOffset, yOffset, size, size);
+    // TODO
+    // return img.copyCrop(image, xOffset, yOffset, size, size);
+    return img.copyCrop(image, x: xOffset, y: yOffset, width: size, height: size);
   }
 
 }
